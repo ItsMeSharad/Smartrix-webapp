@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartTix - AI-Powered Ticket Booking</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-ticket-alt"></i></div>
+            <h1>SmartTix</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" class="active" data-page="home">Home</a></li>
+                <li><a href="#" data-page="events">My Tickets</a></li>
+                <li><a href="#" data-page="admin">Admin</a></li>
+            </ul>
+        </nav>
+        <button id="theme-toggle" class="icon-button" title="Toggle theme">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button id="reset-app" class="icon-button" title="Reset app">
+            <i class="fas fa-rotate-right"></i>
+        </button>
+        <div class="wallet">
+            <i class="fas fa-wallet"></i>
+            <span id="wallet-balance">₹1000</span>
+        </div>
+    </header>
+
+    <!-- Main Content Section -->
+    <main>
+        <!-- Home Page -->
+        <section id="home-page" class="page active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h2>Book Your Next <span class="highlight">Experience</span></h2>
+                    <p>Movies, concerts, trains, and workshops - all in one place. Seamless booking with instant refunds.</p>
+                    
+                    <div class="search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <label for="search-input"></label><input type="text" id="search-input" placeholder="Search by city...">
+                        </div>
+                        <div class="dropdown">
+                            <button class="dropdown-btn">All Categories <i class="fas fa-chevron-down"></i></button>
+                            <div class="dropdown-content">
+                                <a href="#" data-category="all">All Categories</a>
+                                <a href="#" data-category="movie">Movies</a>
+                                <a href="#" data-category="concert">Concerts</a>
+                                <a href="#" data-category="train">Trains</a>
+                                <a href="#" data-category="workshop">Workshops</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trending-section">
+                <h3>Trending Events</h3>
+                <div class="event-cards" id="trending-events">
+                    <!-- Event cards will be dynamically inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- All Events Page -->
+        <section id="events-page" class="page">
+            <h2>All Events</h2>
+            <div class="sort-toolbar">
+                <label for="sort-select">Sort:</label>
+                <select id="sort-select">
+                    <option value="soonest">Soonest</option>
+                    <option value="price-low-high">Price: Low to High</option>
+                    <option value="price-high-low">Price: High to Low</option>
+                    <option value="seats-most">Seats: Most Available</option>
+                </select>
+            </div>
+            <div class="event-cards" id="all-events">
+                <!-- Event cards will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- My Tickets Page -->
+        <section id="tickets-page" class="page">
+            <h2>My Tickets</h2>
+            <div class="tickets-container" id="my-tickets">
+                <!-- Tickets will be dynamically inserted here -->
+            </div>
+            <div class="wallet-topup" style="margin: 16px 0; display: flex; gap: 8px; align-items: center;">
+                <label for="topup-amount" style="display:none;"></label>
+                <input type="number" id="topup-amount" min="1" placeholder="Enter amount (₹)" style="flex: 0 0 200px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                <button id="topup-btn" class="btn primary-btn">Add Funds</button>
+                <span id="topup-message" style="margin-left: 8px; font-size: 0.95em; color: #2e7d32;"></span>
+            </div>
+            
+            <div class="transactions-section">
+                <h3>Transaction History</h3>
+                <div class="transactions-container" id="transactions">
+                    <!-- Transactions will be dynamically inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Page -->
+        <section id="admin-page" class="page">
+            <h2>Verify Tickets</h2>
+            <div class="admin-container">
+                <div class="verify-form">
+                    <label for="booking-id-input"></label><input type="text" id="booking-id-input" placeholder="Enter Booking ID">
+                    <button id="verify-btn">Verify</button>
+                </div>
+                <div class="verification-result" id="verification-result">
+                    <!-- Verification results will be shown here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Booking Modal -->
+    <div class="modal" id="booking-modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Book Tickets</h2>
+            <div class="event-details" id="modal-event-details">
+                <!-- Event details will be inserted here -->
+            </div>
+            <div class="booking-form">
+                <div class="form-group">
+                    <label for="seats">Number of Seats:</label>
+                    <div class="quantity-control" style="display:flex;align-items:center;gap:8px;">
+                        <button type="button" class="decrement-btn" aria-label="Decrease seats">-</button>
+                        <input type="number" id="seats" min="1" max="10" value="1" style="width:80px;text-align:center;">
+                        <button type="button" class="increment-btn" aria-label="Increase seats">+</button>
+                    </div>
+                </div>
+                <div class="cost-breakdown" id="cost-breakdown">
+                    <div class="cost-item">
+                        <span>Base Price</span>
+                        <span id="base-price">₹0</span>
+                    </div>
+                    <div class="cost-item">
+                        <span>Service Fee</span>
+                        <span id="service-fee">₹0</span>
+                    </div>
+                    <div class="cost-item">
+                        <span>Tax</span>
+                        <span id="tax">₹0</span>
+                    </div>
+                    <div class="cost-item total">
+                        <span>Total</span>
+                        <span id="total-price">₹0</span>
+                    </div>
+                </div>
+                <div class="wallet-info" id="wallet-info" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>Wallet: <span id="wallet-balance-modal">₹0</span></div>
+                    <div id="insufficient-funds" style="display:none;color:#c62828;">
+                        Insufficient funds. Need <span id="needed-amount">₹0</span>.
+                        <button type="button" id="quick-topup-btn" class="btn secondary-btn" style="margin-left:6px;">Top up</button>
+                    </div>
+                </div>
+                <button id="confirm-booking">Confirm Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Confirmation Modal -->
+    <div class="modal" id="confirmation-modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="confirmation-details" id="confirmation-details">
+                <!-- Confirmation details will be inserted here -->
+            </div>
+            <div class="confirmation-actions">
+                <button id="download-ticket"><i class="fas fa-download"></i> Download</button>
+                <button id="email-ticket"><i class="fas fa-envelope"></i> Email</button>
+                <button id="back-to-home"><i class="fas fa-home"></i> Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selfie Upload Modal -->
+    <div class="modal" id="selfie-modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Upload Selfie for Verification</h2>
+            <p>Please upload a selfie to verify your identity at the venue.</p>
+            <div class="selfie-container">
+                <video id="selfie-video" autoplay></video>
+                <canvas id="selfie-canvas" style="display:none;"></canvas>
+                <div class="selfie-preview" id="selfie-preview"></div>
+            </div>
+            <div class="selfie-actions">
+                <button id="take-selfie">Take Selfie</button>
+                <button id="retake-selfie" style="display:none;">Retake</button>
+                <button id="save-selfie" style="display:none;">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat Assistant -->
+    <div class="chat-widget" id="chat-widget">
+        <div class="chat-header">
+            <i class="fas fa-robot"></i>
+            <span>AI Assistant</span>
+            <button class="minimize-btn" id="minimize-chat"><i class="fas fa-minus"></i></button>
+        </div>
+        <div class="chat-body" id="chat-body">
+            <div class="chat-message assistant">
+                <div class="message-content">
+                    Hello! I can help you find events and book tickets. Try asking me something like "Find concerts in Lucknow" or "Book 2 tickets for Rock Night Live".
+                </div>
+            </div>
+            <!-- Chat messages will be inserted here -->
+        </div>
+        <div class="chat-input">
+            <label for="chat-input"></label><input type="text" id="chat-input" placeholder="Type your message...">
+            <button id="send-chat"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <button class="chat-toggle" id="chat-toggle">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html>
